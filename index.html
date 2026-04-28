@@ -1,49 +1,52 @@
 <!doctype html>
 <html>
   <head>
-    <title>SW Notif Test</title>
+    <title>SW Fix</title>
   </head>
 
   <body style="font-family: sans-serif; text-align: center; margin-top: 80px">
-    <h2>Service Worker Notification Test</h2>
+    <h2>Fixed Notification Test</h2>
 
-    <button onclick="registerSW()">1. Enable App</button>
-    <button onclick="startTimer()">2. Start 10s Timer</button>
+    <button onclick="setup()">Enable</button>
+    <button onclick="runTimer()">Start 10s</button>
 
     <p id="status"></p>
 
     <script>
-      let swRegistration;
+      let sw;
 
-      async function registerSW() {
+      async function setup() {
         if (!("serviceWorker" in navigator)) {
-          alert("Service Worker not supported");
+          alert("No SW support");
           return;
         }
 
-        const permission = await Notification.requestPermission();
+        const perm = await Notification.requestPermission();
+        console.log("Permission:", perm);
+
+        sw = await navigator.serviceWorker.register("./sw.js");
+        await navigator.serviceWorker.ready;
+
         document.getElementById("status").innerText =
-          "Notification permission: " + permission;
-
-        swRegistration = await navigator.serviceWorker.register("sw.js");
-        console.log("SW registered");
-
-        document.getElementById("status").innerText += " | SW registered";
+          "SW ready + permission: " + perm;
       }
 
-      function startTimer() {
-        document.getElementById("status").innerText = "Timer started (10s)";
+      function runTimer() {
+        document.getElementById("status").innerText = "Running...";
 
-        setTimeout(() => {
-          if (swRegistration && Notification.permission === "granted") {
-            swRegistration.active.postMessage({
-              type: "NOTIFY",
-              title: "WORKING?",
-              body: "Service Worker notification fired 🎉",
-            });
-          } else {
-            alert("SW not ready or permission denied");
+        setTimeout(async () => {
+          const reg = await navigator.serviceWorker.ready;
+
+          if (Notification.permission !== "granted") {
+            alert("No notification permission");
+            return;
           }
+
+          reg.active?.postMessage({
+            type: "NOTIFY",
+            title: "WORKS",
+            body: "If you see this, it's fixed",
+          });
         }, 10000);
       }
     </script>
