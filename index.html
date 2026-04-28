@@ -1,59 +1,45 @@
 <!doctype html>
 <html>
   <head>
-    <title>SW Notification Working</title>
+    <title>SW Proof Test</title>
   </head>
 
   <body style="font-family: sans-serif; text-align: center; margin-top: 80px">
-    <h2>Service Worker Notifications</h2>
+    <h2>Service Worker Proof Test</h2>
 
-    <button onclick="setup()">Enable Notifications</button>
-    <button onclick="startTimer()">Start 10s Timer</button>
+    <button onclick="setup()">1. Enable</button>
+    <button onclick="testNotify()">2. FORCE NOTIFICATION</button>
 
     <p id="status"></p>
 
     <script>
-      let swRegistration;
+      let reg;
 
       async function setup() {
         if (!("serviceWorker" in navigator)) {
-          alert("Service Workers not supported");
+          alert("No SW support");
           return;
         }
 
-        const permission = await Notification.requestPermission();
+        const perm = await Notification.requestPermission();
 
-        swRegistration = await navigator.serviceWorker.register("./sw.js");
+        reg = await navigator.serviceWorker.register("./sw.js");
         await navigator.serviceWorker.ready;
 
         document.getElementById("status").innerText =
-          "Ready | Permission: " + permission;
+          "Ready | Permission: " + perm;
       }
 
-      function startTimer() {
-        document.getElementById("status").innerText = "Timer running...";
+      async function testNotify() {
+        const r = await navigator.serviceWorker.ready;
 
-        setTimeout(async () => {
-          const reg = await navigator.serviceWorker.ready;
+        // IMPORTANT: correct API is reg.showNotification
+        r.showNotification("FORCED TEST", {
+          body: "If you see this, everything is working",
+          requireInteraction: true,
+        });
 
-          const sw = reg.active || navigator.serviceWorker.controller;
-
-          if (!sw) {
-            alert("No active service worker");
-            return;
-          }
-
-          if (Notification.permission !== "granted") {
-            alert("No permission granted");
-            return;
-          }
-
-          sw.postMessage({
-            type: "NOTIFY",
-            title: "WORKING?",
-            body: "Service Worker notification fired 🎉",
-          });
-        }, 10000);
+        document.getElementById("status").innerText = "Notification triggered";
       }
     </script>
   </body>
