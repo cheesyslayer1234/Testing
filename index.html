@@ -1,14 +1,14 @@
 <!doctype html>
 <html>
   <head>
-    <title>SW Notification Fixed</title>
+    <title>SW Notification Working</title>
   </head>
 
   <body style="font-family: sans-serif; text-align: center; margin-top: 80px">
-    <h2>Service Worker Notification Test</h2>
+    <h2>Service Worker Notifications</h2>
 
-    <button onclick="setup()">1. Enable Notifications</button>
-    <button onclick="startTimer()">2. Start 10s Timer</button>
+    <button onclick="setup()">Enable Notifications</button>
+    <button onclick="startTimer()">Start 10s Timer</button>
 
     <p id="status"></p>
 
@@ -17,7 +17,7 @@
 
       async function setup() {
         if (!("serviceWorker" in navigator)) {
-          alert("Service Worker not supported");
+          alert("Service Workers not supported");
           return;
         }
 
@@ -44,14 +44,14 @@
           }
 
           if (Notification.permission !== "granted") {
-            alert("No permission");
+            alert("No permission granted");
             return;
           }
 
           sw.postMessage({
             type: "NOTIFY",
             title: "WORKING?",
-            body: "If you see this, it works 🎉",
+            body: "Service Worker notification fired 🎉",
           });
         }, 10000);
       }
