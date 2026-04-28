@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notif Test</title>
+</head>
+<body style="font-family:sans-serif;text-align:center;margin-top:100px;">
+
+<h2>Notification Test</h2>
+
+<button onclick="enableNotif()">Enable Notifications</button>
+<button onclick="startTask()">Start 10s Task</button>
+
+<p id="status"></p>
+
+<script>
+function enableNotif() {
+  Notification.requestPermission().then(p => {
+    document.getElementById("status").innerText = "Permission: " + p;
+  });
+}
+
+function startTask() {
+  document.getElementById("status").innerText = "Task running... switch tabs!";
+  document.title = "⏳ Running...";
+
+  setTimeout(() => {
+    done();
+  }, 10000);
+}
+
+function done() {
+  document.title = "✅ Done!";
+  document.getElementById("status").innerText = "Finished!";
+
+  // Only notify if user is NOT on this tab
+  if (Notification.permission === "granted" && document.hidden) {
+    new Notification("Done!", {
+      body: "Your task finished."
+    });
+  }
+}
+</script>
+
+</body>
+</html>
