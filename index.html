@@ -1,14 +1,14 @@
 <!doctype html>
 <html>
   <head>
-    <title>SW Proof Test</title>
+    <title>Pomofocus SW Timer</title>
   </head>
 
-  <body style="font-family: sans-serif; text-align: center; margin-top: 80px">
-    <h2>Service Worker Proof Test</h2>
+  <body style="font-family:sans-serif;text-align:center;margin-top:80px">
+    <h2>SW Timer Notification (Proper Version)</h2>
 
-    <button onclick="setup()">1. Enable</button>
-    <button onclick="testNotify()">2. FORCE NOTIFICATION</button>
+    <button onclick="setup()">Enable</button>
+    <button onclick="startTimer()">Start 10s Timer</button>
 
     <p id="status"></p>
 
@@ -30,16 +30,15 @@
           "Ready | Permission: " + perm;
       }
 
-      async function testNotify() {
-        const r = await navigator.serviceWorker.ready;
+      function startTimer() {
+        document.getElementById("status").innerText = "Timer started (SW owns it)";
 
-        // IMPORTANT: correct API is reg.showNotification
-        r.showNotification("FORCED TEST", {
-          body: "If you see this, everything is working",
-          requireInteraction: true,
+        navigator.serviceWorker.ready.then((r) => {
+          r.active.postMessage({
+            type: "START_TIMER",
+            delay: 10 // seconds
+          });
         });
-
-        document.getElementById("status").innerText = "Notification triggered";
       }
     </script>
   </body>
