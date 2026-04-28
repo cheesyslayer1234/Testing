@@ -12,15 +12,25 @@
     <p id="status"></p>
 
     <script>
-      document.body.onclick = async () => {
-        await Notification.requestPermission();
+      async function enableNotif() {
+        const permission = await Notification.requestPermission();
+        document.getElementById("status").innerText =
+          "Permission: " + permission;
+      }
+
+      function startTask() {
+        document.getElementById("status").innerText = "Waiting 10s...";
 
         setTimeout(() => {
-          new Notification("WORKING?", {
-            body: "If you see this, it's fixed.",
-          });
-        }, 5000);
-      };
+          if (Notification.permission === "granted") {
+            new Notification("WORKING?", {
+              body: "If you see this, it's fixed.",
+            });
+          } else {
+            alert("Notifications not enabled");
+          }
+        }, 10000);
+      }
     </script>
   </body>
 </html>
