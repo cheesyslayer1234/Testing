@@ -1,33 +1,48 @@
 <!doctype html>
 <html>
   <head>
-    <title>Notif Test</title>
+    <title>SW Notif Test</title>
   </head>
-  <body style="font-family: sans-serif; text-align: center; margin-top: 100px">
-    <h2>Notification Test</h2>
 
-    <button onclick="enableNotif()">Enable Notifications</button>
-    <button onclick="startTask()">Start 10s Task</button>
+  <body style="font-family: sans-serif; text-align: center; margin-top: 80px">
+    <h2>Service Worker Notification Test</h2>
+
+    <button onclick="registerSW()">1. Enable App</button>
+    <button onclick="startTimer()">2. Start 10s Timer</button>
 
     <p id="status"></p>
 
     <script>
-      async function enableNotif() {
+      let swRegistration;
+
+      async function registerSW() {
+        if (!("serviceWorker" in navigator)) {
+          alert("Service Worker not supported");
+          return;
+        }
+
         const permission = await Notification.requestPermission();
         document.getElementById("status").innerText =
-          "Permission: " + permission;
+          "Notification permission: " + permission;
+
+        swRegistration = await navigator.serviceWorker.register("sw.js");
+        console.log("SW registered");
+
+        document.getElementById("status").innerText += " | SW registered";
       }
 
-      function startTask() {
-        document.getElementById("status").innerText = "Waiting 10s...";
+      function startTimer() {
+        document.getElementById("status").innerText = "Timer started (10s)";
 
         setTimeout(() => {
-          if (Notification.permission === "granted") {
-            new Notification("WORKING?", {
-              body: "If you see this, it's fixed.",
+          if (swRegistration && Notification.permission === "granted") {
+            swRegistration.active.postMessage({
+              type: "NOTIFY",
+              title: "WORKING?",
+              body: "Service Worker notification fired 🎉",
             });
           } else {
-            alert("Notifications not enabled");
+            alert("SW not ready or permission denied");
           }
         }, 10000);
       }
