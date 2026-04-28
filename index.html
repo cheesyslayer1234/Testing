@@ -1,51 +1,57 @@
 <!doctype html>
 <html>
   <head>
-    <title>SW Fix</title>
+    <title>SW Notification Fixed</title>
   </head>
 
   <body style="font-family: sans-serif; text-align: center; margin-top: 80px">
-    <h2>Fixed Notification Test</h2>
+    <h2>Service Worker Notification Test</h2>
 
-    <button onclick="setup()">Enable</button>
-    <button onclick="runTimer()">Start 10s</button>
+    <button onclick="setup()">1. Enable Notifications</button>
+    <button onclick="startTimer()">2. Start 10s Timer</button>
 
     <p id="status"></p>
 
     <script>
-      let sw;
+      let swRegistration;
 
       async function setup() {
         if (!("serviceWorker" in navigator)) {
-          alert("No SW support");
+          alert("Service Worker not supported");
           return;
         }
 
-        const perm = await Notification.requestPermission();
-        console.log("Permission:", perm);
+        const permission = await Notification.requestPermission();
 
-        sw = await navigator.serviceWorker.register("./sw.js");
+        swRegistration = await navigator.serviceWorker.register("./sw.js");
         await navigator.serviceWorker.ready;
 
         document.getElementById("status").innerText =
-          "SW ready + permission: " + perm;
+          "Ready | Permission: " + permission;
       }
 
-      function runTimer() {
-        document.getElementById("status").innerText = "Running...";
+      function startTimer() {
+        document.getElementById("status").innerText = "Timer running...";
 
         setTimeout(async () => {
           const reg = await navigator.serviceWorker.ready;
 
-          if (Notification.permission !== "granted") {
-            alert("No notification permission");
+          const sw = reg.active || navigator.serviceWorker.controller;
+
+          if (!sw) {
+            alert("No active service worker");
             return;
           }
 
-          reg.active?.postMessage({
+          if (Notification.permission !== "granted") {
+            alert("No permission");
+            return;
+          }
+
+          sw.postMessage({
             type: "NOTIFY",
-            title: "WORKS",
-            body: "If you see this, it's fixed",
+            title: "WORKING?",
+            body: "If you see this, it works 🎉",
           });
         }, 10000);
       }
